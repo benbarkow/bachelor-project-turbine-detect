@@ -1,4 +1,4 @@
-#include <Arduino.h>
+//#include <Arduino.h>
 
 class BeschlStepper{
   private:
@@ -56,6 +56,8 @@ class BeschlStepper{
     }
     return -1;
   }
+
+  
 
   /**
    * sets the order to drive the motor a certain distance
@@ -192,6 +194,10 @@ class BeschlStepper{
   */
   void setGearRatio(float g){
     gearratio = g;
+  }
+
+  boolean isDone(){
+    return !moveRunning;
   }
 
 };
