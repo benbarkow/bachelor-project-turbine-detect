@@ -9,7 +9,8 @@ void setup(){
   pinMode(xEndstop,INPUT_PULLUP);
   pinMode(yEndstop,INPUT_PULLUP);
   XMotor.initialize(2,5,800);
-  YMotor.initialize(3,6,800);
+  XMotor.runMotorUntilStop(1,false);
+  pinMode(9,INPUT_PULLUP);
 }
 
 void loop(){
