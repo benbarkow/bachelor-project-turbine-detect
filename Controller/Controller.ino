@@ -6,6 +6,7 @@ void setup(){
   Serial.begin(9600);
   XMotor.initialize(2,5,800);
   XMotor.runMotorUntilStop(1,false);
+  pinMode(9,INPUT_PULLUP);
 }
 
 void loop(){

@@ -1,6 +1,6 @@
 {
     "port": "COM5",
     "board": "arduino:avr:uno",
-    "sketch": "arduino\\controller\\controller.ino",
+    "sketch": "Controller\\Controller.ino",
     "programmer": "avrispmkii"
 }
