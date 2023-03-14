@@ -1,4 +1,4 @@
-//#include <Arduino.h>
+#include <Arduino.h>
 
 class BeschlStepper{
   private:
@@ -10,27 +10,26 @@ class BeschlStepper{
   float acceleration = 20.0; //Umdrehungen/s^2
   float servoAngle = 0.0;
   float gearratio = 1.0; //when the motor is attached to a gear the gearratio can be set. The acceleration and velocity still apply to the motor
-  unsigned long prevMicros = 0;
+  unsigned long prevMicros = 0, moveTime = 0;
   byte stepPin, dirPin;
   boolean moveRunning = false,stepTracker = false, plannedMove = true;
 
   public:
 
-/**
+ /**
  * initilizes a Steppermotor
  * @param s the Steppin
  * @param d the directionpin
  * @param stepsRev the number of steps per Revolution
 */
-  void initialize(int s,int d, int stepsRev){
+ void initialize(int s,int d, int stepsRev){
     stepPin = s;
     dirPin = d;
     stepsPerRevolution = stepsRev;
     pinMode(stepPin,OUTPUT);
     pinMode(dirPin,OUTPUT);
+    pinMode(LED_BUILTIN,OUTPUT);
   }
-
-
 
 /**
  * sets the order to drive the motor a certain distance
@@ -47,14 +46,18 @@ class BeschlStepper{
       stepsLeft = stepsForMove;
       maxV = vel;
       timeInterval = 0;
-      Serial.print("sl in rm: "); Serial.println(stepsLeft);
+      // Serial.print("sl in rm: "); Serial.println(stepsLeft);
 
       moveRunning = true;
       plannedMove = true;
       //calculation of the time required for the move
       float s = maxV*maxV/(2.0*acceleration);
-      if(s < dis/2.0) return 2.0*maxV/acceleration + (dis-2.0*s)/maxV;
-      else return 2.0*sqrt(dis/acceleration);
+      moveTime = micros();
+      float calcMoveTime = (maxV-sqrt(maxV*maxV-2.0*acceleration*dis))/acceleration;
+      // if(s < dis/2.0) calcMoveTime = 2.0*maxV/acceleration + (dis-2.0*s)/maxV;
+      // else calcMoveTime = 2.0*sqrt(dis/acceleration);
+      // Serial.print("calculated time: "); Serial.print(calcMoveTime); Serial.println("s");
+      return calcMoveTime; 
     }
     return -1;
   }
@@ -82,6 +85,7 @@ class BeschlStepper{
         moveRunning = true;
         plannedMove = true;
         Serial.println(maxV);
+        moveTime = micros();
       }
     }
 
@@ -98,7 +102,7 @@ class BeschlStepper{
       float deltaAngle = angle - servoAngle;
       digitalWrite(dirPin,deltaAngle > 0);
       servoAngle = angle;
-      maxV = vel;
+      maxV = vel; 
       dis = abs(deltaAngle)*gearratio/360.0;
       stepsForMove = dis*stepsPerRevolution;
       stepsLeft = stepsForMove;
@@ -111,6 +115,7 @@ class BeschlStepper{
     }
     return -1;
   }
+
 
   /**
    * sets the angle to drive to with given time and calculates the maxium velocity
@@ -152,12 +157,13 @@ class BeschlStepper{
    * updates the Motor while not stopping the code by holding it in a loop
   */
   void updateMotor(){
+    digitalWrite(LED_BUILTIN,moveRunning);
     if(moveRunning){
       //geschwindigkeitsgraph tri(x)=a*t0/2 *(1-abs((x-t0/2)/(t0/2)))
       //mit der beschleunigung a und distanz t0
       if(stepsLeft == 0){
         moveRunning = false;
-        Serial.println("move done");
+        // Serial.print("move done in "); Serial.print((micros()-moveTime)/1000000.0); Serial.println("s");
         return;
       }
       // Serial.print(timeInterval); Serial.print(" , "); Serial.println(prevMicros);
@@ -172,7 +178,7 @@ class BeschlStepper{
             float x = float(stepsForMove-stepsLeft)/float(stepsPerRevolution);
             float dishalf = dis/2;
             float currentVel = min(acceleration*dishalf*(1-abs((x-dishalf)/dishalf))+0.25, maxV);
-            timeInterval = 1000000.0/float(stepsPerRevolution*2*currentVel);
+            timeInterval = 1000000.0/float(stepsPerRevolution*2.0*currentVel);
             // Serial.print("stepsLeft: "); Serial.println(stepsLeft);
           }
         }
