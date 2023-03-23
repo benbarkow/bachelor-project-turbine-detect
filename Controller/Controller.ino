@@ -13,6 +13,7 @@ boolean firstDone = false, uncontrolledMove = false, xyMotor = false, uncontroll
 
 void setup(){
   Serial.begin(9600);
+  Serial.setTimeout(20);
   pinMode(xEndstop,INPUT_PULLUP);
   pinMode(yEndstop,INPUT_PULLUP);
   XMotor.initialize(2,5,10);
@@ -32,34 +33,37 @@ void loop(){
     Serial.print(xPos); Serial.print(","); Serial.println(yPos);
   }
   else if(order.substring(0,3).equals("mve")){
+    int speed = order.substring(order.indexOf(",")+1,order.length()).toInt();
     if(order.charAt(3) == '+'){
       uncontrolledDir = true;
       if(order.charAt(4) == 'x'){
         xyMotor = true;
-        XMotor.runMotorUntilStop(100,false);
+        XMotor.runMotorUntilStop(speed,false);
       }
       else if(order.charAt(4) == 'y'){
         xyMotor = false;
-        YMotor.runMotorUntilStop(100,false);
+        YMotor.runMotorUntilStop(speed,false);
       }
     }
     else if(order.charAt(3) == '-'){
       uncontrolledDir = false;
       if(order.charAt(4) == 'x'){
         xyMotor = true;
-        XMotor.runMotorUntilStop(100,true);
+        XMotor.runMotorUntilStop(speed,true);
       }
       else if(order.charAt(4) == 'y'){
         xyMotor = false;
-        YMotor.runMotorUntilStop(100,true);
+        YMotor.runMotorUntilStop(speed,true);
       }
     }
     uncontrolledMove = true;
+    Serial.println("moving");
   }
   else if(order.substring(0,3).equals("stp")){
     uncontrolledMove = false;
     XMotor.stopMotor();
     YMotor.stopMotor();
+    Serial.println("stopped");
   }
   else{
     int xOld = xPos;
@@ -135,7 +139,7 @@ void loop(){
         yPos += 0.25/float(YMotor.getStepsPerRevolution());
       }
       else{
-        yPos -= 0.5/float(YMotor.getStepsPerRevolution());
+        yPos -= 0.25/float(YMotor.getStepsPerRevolution());
       }
     }
 

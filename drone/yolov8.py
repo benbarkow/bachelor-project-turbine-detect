@@ -26,6 +26,11 @@ class ObjectDetection:
 
 		self.box_annotator = BoxAnnotator(color=ColorPalette(), thickness=2, text_thickness=2, text_scale=0.5)
 
+		self.cap = cv2.VideoCapture(self.capture_index)
+		assert self.cap.isOpened()
+		self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+		self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
 
 	def load_model(self):
 		
@@ -145,15 +150,11 @@ class ObjectDetection:
 		return frame
 
 	def detect(self):
-		cap = cv2.VideoCapture(self.capture_index)
-		assert cap.isOpened()
-		cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-		cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 		#test if gpu is available
 		start_time = time()
 		
-		ret, frame = cap.read()
+		ret, frame = self.cap.read()
 		assert ret
 		
 		results = self.predict(frame)
@@ -163,6 +164,8 @@ class ObjectDetection:
 		self.center = center
 		if center is not None:
 			cv2.circle(frame, (int(center[0]), int(center[1])), 10, (0, 255, 0), 2)
+			dirString = '<--' if center[0] < 320 else '-->'
+			cv2.putText(frame, dirString, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,0), 2)
 
 		# print(points)
 		if points is not None:
@@ -171,21 +174,17 @@ class ObjectDetection:
 				point2 = (int(points[(i+1)%3][0]), int(points[(i+1)%3][1]))
 				cv2.line(frame, point1, point2, (0, 255, 0), 2)
 
-		# min_dists, min_dist_points = self.get_turbine_center(results)
-		# print(min_dist_points[0][0])
-
-		# for i in range(len(min_dists)):
-		# 	point1 = (int(min_dist_points[i][0][0]), int(min_dist_points[i][0][1]))
-		# 	point2 = (int(min_dist_points[i][1][0]), int(min_dist_points[i][1][1]))
-		# 	cv2.line(frame, point1, point2, (0, 255, 0), 2)
 		end_time = time()
 		fps = 1/np.round(end_time - start_time, 2)
 			
 		cv2.putText(frame, f'FPS: {int(fps)}', (20,70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,255,0), 2)
 		
 		cv2.imshow('YOLOv8 Detection', frame)
-		# cv2.waitKey(0)
 		return self.center
+	
+	def close(self):
+		self.cap.release()
+		cv2.destroyAllWindows()
 
 
 	def __call__(self):
@@ -242,8 +241,3 @@ class ObjectDetection:
 		
 		cap.release()
 		cv2.destroyAllWindows()
-        
-        
-    
-detector = ObjectDetection(capture_index=1)
-detector()
