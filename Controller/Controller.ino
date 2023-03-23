@@ -124,22 +124,31 @@ void loop(){
     firstDone = true;
 
   }
+  if(XMotor.isStepDone() || YMotor.isStepDone()){
+    trackSteps();
+    XMotor.setStepDone(false);
+    YMotor.setStepDone(false);  
+  }
+  XMotor.updateMotor();
+  YMotor.updateMotor();
+}
 
+void trackSteps(){
   if(uncontrolledMove){
     if(xyMotor){
       if(uncontrolledDir){
-        xPos += 0.25/float(XMotor.getStepsPerRevolution());
+        xPos += 1/float(XMotor.getStepsPerRevolution());
       }
       else{
-        xPos -= 0.25/float(XMotor.getStepsPerRevolution());
+        xPos -= 1/float(XMotor.getStepsPerRevolution());
       }
     }
     else{
       if(uncontrolledDir){
-        yPos += 0.25/float(YMotor.getStepsPerRevolution());
+        yPos += 1/float(YMotor.getStepsPerRevolution());
       }
       else{
-        yPos -= 0.25/float(YMotor.getStepsPerRevolution());
+        yPos -= 1/float(YMotor.getStepsPerRevolution());
       }
     }
 
@@ -168,8 +177,6 @@ void loop(){
       uncontrolledMove = false;
     }
   }
-  XMotor.updateMotor();
-  YMotor.updateMotor();
 }
 
 void homeAxis(){
