@@ -3,7 +3,7 @@
 class BeschlStepper{
   private:
   int stepsPerRevolution;
-  int stepsLeft, stepsForMove, stepsDriven = 0;
+  int stepsLeft, stepsForMove;
   double maxV = 0.0; //maximum velocity in Umdrehungen/s
   float dis = 0.0; //distanz zurueckzulegen in Umdrehungen
   int timeInterval = 0; //Zeitintervall zwischen jedem halben step also von HIGH->LOW oder LOW->HIGH
@@ -146,7 +146,6 @@ class BeschlStepper{
     moveRunning = true;
     plannedMove = false;
     stepsLeft = 1;
-    stepsDriven = 0;
   }
 
   void stopMotor(){
@@ -181,6 +180,8 @@ class BeschlStepper{
             float currentVel = min(acceleration*dishalf*(1-abs((x-dishalf)/dishalf))+0.25, maxV);
             timeInterval = 1000000.0/float(stepsPerRevolution*2.0*currentVel);
             // Serial.print("stepsLeft: "); Serial.println(stepsLeft);
+          }
+          else{
             stepDone = true;
           }
         }

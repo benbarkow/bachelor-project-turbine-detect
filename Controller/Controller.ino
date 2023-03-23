@@ -125,6 +125,7 @@ void loop(){
 
   }
   if(XMotor.isStepDone() || YMotor.isStepDone()){
+    // Serial.println("stepDone");
     trackSteps();
     XMotor.setStepDone(false);
     YMotor.setStepDone(false);  
@@ -151,7 +152,7 @@ void trackSteps(){
         yPos -= 1/float(YMotor.getStepsPerRevolution());
       }
     }
-
+    // Serial.println(xPos);
     if(xPos < 0){
       xPos = 0;
       Serial.println("xMin reached");

@@ -31,12 +31,12 @@ while not drone_done:
 			if curr_dir == -1:
 				continue
 			curr_dir = -1
-			drone.moveDir('x', -1, 100)
+			drone.moveDir('x', -1, 50)
 		elif center[0] > frame_width/2 + 11:
 			if curr_dir == 1:
 				continue
 			curr_dir = 1
-			drone.moveDir('x', 1, 100)
+			drone.moveDir('x', 1, 50)
 
 detector.close()
 
