@@ -17,13 +17,22 @@ class Drone:
 	
 	def moveAbs(self,x,y):
 		self.writeToSerial("abs" + str(x) + "," + str(y))
-		
 
 	def moveRel(self,x,y):
 		self.writeToSerial("rel" + str(x) + "," + str(y))
+
+	def moveDir(self, axis, direction):
+		dirString = "-" if direction == -1 else "+"
+		self.writeToSerial("mve" + dirString + axis)
+
+	def stop(self):
+		self.writeToSerial("stp")
 	
 	def home(self):
 		self.writeToSerial('home')
+		while True:
+			if self.readFromSerial() == "homing done":
+				break
 	
 	# def waitForSerial(self):
 	# 	self.ser.
