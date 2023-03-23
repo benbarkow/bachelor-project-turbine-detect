@@ -12,7 +12,7 @@ class BeschlStepper{
   float gearratio = 1.0; //when the motor is attached to a gear the gearratio can be set. The acceleration and velocity still apply to the motor
   unsigned long prevMicros = 0, moveTime = 0;
   byte stepPin, dirPin;
-  boolean moveRunning = false,stepTracker = false, plannedMove = true;
+  boolean moveRunning = false,stepTracker = false, plannedMove = true, stepDone = false;
 
   public:
 
@@ -181,24 +181,21 @@ class BeschlStepper{
             float currentVel = min(acceleration*dishalf*(1-abs((x-dishalf)/dishalf))+0.25, maxV);
             timeInterval = 1000000.0/float(stepsPerRevolution*2.0*currentVel);
             // Serial.print("stepsLeft: "); Serial.println(stepsLeft);
-          }
-          else{
-            stepsDriven++;
+            stepDone = true;
           }
         }
       }
     }
   }
 
-  /**
-   * getter for the current position of the motor
-   * @return the current position of the motor in steps
-  */
-  int getStepsDriven(){
-    int temp = stepsDriven;
-    stepsDriven = 0;
-    return temp;
+  boolean isStepDone(){
+    return stepDone;
   }
+
+  void setStepDone(boolean b){
+    stepDone = b;
+  }
+
 
   /**
    * setter for the acceleration
@@ -215,7 +212,7 @@ class BeschlStepper{
     servoAngle = 0;
   }
 
-  
+
   int getStepsPerRevolution(){
     return stepsPerRevolution;
   }
