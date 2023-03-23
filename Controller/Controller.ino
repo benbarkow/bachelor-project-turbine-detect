@@ -13,7 +13,7 @@ boolean firstDone = false, uncontrolledMove = false, xyMotor = false, uncontroll
 
 void setup(){
   Serial.begin(9600);
-  Serial.setTimeout(20);
+  Serial.setTimeout(5);
   pinMode(xEndstop,INPUT_PULLUP);
   pinMode(yEndstop,INPUT_PULLUP);
   XMotor.initialize(2,5,10);
@@ -60,9 +60,13 @@ void loop(){
     Serial.println("moving");
   }
   else if(order.substring(0,3).equals("stp")){
+    if (order.charAt(3) == 'x'){
+      XMotor.stopMotor();
+    }
+    else if(order.charAt(3) == 'y'){
+      YMotor.stopMotor();
+    }
     uncontrolledMove = false;
-    XMotor.stopMotor();
-    YMotor.stopMotor();
     Serial.println("stopped");
   }
   else{

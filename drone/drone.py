@@ -30,8 +30,8 @@ class Drone:
 			if read == "moving":
 				break
 
-	def stop(self):
-		self.writeToSerial("stp")
+	def stop(self, axis):
+		self.writeToSerial("stp" + axis)
 		while True:
 			read = self.readFromSerial().strip()
 			if read == "stopped":

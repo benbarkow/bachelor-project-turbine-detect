@@ -46,9 +46,12 @@ class ObjectDetection:
 		
 		return results
 
-	def get_turbine_center(self, results):
+	def get_turbine_info(self, results):
 		min_edge = float('inf')
 		boxes = []
+		center = None
+		points = None
+		main_boxes = []
 		for result in results[0]:
 			class_id = result.boxes.cls.cpu().numpy().astype(int)
 			if class_id == 0:
@@ -99,15 +102,23 @@ class ObjectDetection:
 									if circumfrence < min_circumfrence:
 										min_circumfrence = circumfrence
 										points = triangle
+										main_boxes = [boxes[i], boxes[j], boxes[k]]
 
 			#find center of triangle
 			center = np.array([0.0, 0.0])
 			for point in points:
 				center += point
 			center /= 3
-			return points, center
-		else:
-			return None, None
+
+		diag_sum = 0
+		for i in range(len(main_boxes)):
+			#calc length of diagonal of box
+			diag_sum += np.linalg.norm(main_boxes[i][0] - main_boxes[i][2])
+
+		size = diag_sum / (1 if len(main_boxes) == 0 else len(main_boxes))
+		# size = diag_sum / len(main_boxes)
+		print("size: ", size)
+		return points, center, size
 
 
 		# return current_min_dists, current_min_dist_points
@@ -159,7 +170,7 @@ class ObjectDetection:
 		
 		results = self.predict(frame)
 		frame = self.plot_bboxes(results, frame)
-		points, center = self.get_turbine_center(results)
+		points, center, size = self.get_turbine_info(results)
 		# print(center)
 		self.center = center
 		if center is not None:
@@ -180,7 +191,7 @@ class ObjectDetection:
 		cv2.putText(frame, f'FPS: {int(fps)}', (20,70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,255,0), 2)
 		
 		cv2.imshow('YOLOv8 Detection', frame)
-		return self.center
+		return self.center, size
 	
 	def close(self):
 		self.cap.release()
