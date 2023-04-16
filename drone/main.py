@@ -2,29 +2,24 @@ from drone import Drone
 from yolov8 import ObjectDetection
 import cv2
 
+CV_ONLY = False
+
 def main():
-	drone = Drone()
 
 	frame_width = 640
 	frame_height = 480
 	drone_done = False
-
 	target_size = 200
 
-	drone.home()
-	print("homing done!")
+	if not CV_ONLY:
+		print("init drone...")
+		drone = Drone()
+		drone.home()
+		print("homing done!")
 
-	detector = ObjectDetection(capture_index=1)
+	#initialize object detection with default camera(0) or pass in a different camera index(1,2,3)
+	detector = ObjectDetection(capture_index=0)
 
-	# while True:
-	# 	center, size = detector.detect()
-	# 	print(center, size)
-	# 	if cv2.waitKey(5) & 0xFF == ord('q'):
-	# 		break
-	# return 
-
-	print("detector initialized")
-	curr_dir_x = 0
 	x_done = False
 	y_done = False
 	curr_dir_y = 0
@@ -35,6 +30,8 @@ def main():
 		# print(center)
 		if cv2.waitKey(3) & 0xFF == ord('q'):
 			break
+		if CV_ONLY:
+			continue
 
 		if size > target_size + 10:
 			mode = "y"

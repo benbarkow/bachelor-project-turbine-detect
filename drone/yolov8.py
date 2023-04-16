@@ -34,7 +34,7 @@ class ObjectDetection:
 
 	def load_model(self):
 		
-		model = YOLO("ml/yolov8_v02.pt")  # load a pretrained YOLOv8n model
+		model = YOLO("drone/data/models/yolov8_v02.pt")  # load a pretrained YOLOv8n model
 		model.fuse()
 
 		return model
@@ -171,14 +171,15 @@ class ObjectDetection:
 		results = self.predict(frame)
 		frame = self.plot_bboxes(results, frame)
 		points, center, size = self.get_turbine_info(results)
-		# print(center)
+
+		#draw center 
 		self.center = center
 		if center is not None:
 			cv2.circle(frame, (int(center[0]), int(center[1])), 10, (0, 255, 0), 2)
 			dirString = '<--' if center[0] < 320 else '-->'
 			cv2.putText(frame, dirString, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,0,0), 2)
 
-		# print(points)
+		#draw triangle
 		if points is not None:
 			for i in range(3):
 				point1 = (int(points[i][0]), int(points[i][1]))
@@ -195,60 +196,4 @@ class ObjectDetection:
 	
 	def close(self):
 		self.cap.release()
-		cv2.destroyAllWindows()
-
-
-	def __call__(self):
-
-		cap = cv2.VideoCapture(self.capture_index)
-		assert cap.isOpened()
-		cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-		cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-		#test if gpu is available
-		
-		while True:
-			
-			start_time = time()
-			
-			ret, frame = cap.read()
-			#print width and height of frame
-			print(frame.shape)
-
-			assert ret
-			
-			results = self.predict(frame)
-			frame = self.plot_bboxes(results, frame)
-			points, center = self.get_turbine_center(results)
-			# print(center)
-			self.center = center
-			if center is not None:
-				cv2.circle(frame, (int(center[0]), int(center[1])), 10, (0, 255, 0), 2)
-
-			# print(points)
-			if points is not None:
-				for i in range(3):
-					point1 = (int(points[i][0]), int(points[i][1]))
-					point2 = (int(points[(i+1)%3][0]), int(points[(i+1)%3][1]))
-					cv2.line(frame, point1, point2, (0, 255, 0), 2)
-
-			# min_dists, min_dist_points = self.get_turbine_center(results)
-			# print(min_dist_points[0][0])
-
-			# for i in range(len(min_dists)):
-			# 	point1 = (int(min_dist_points[i][0][0]), int(min_dist_points[i][0][1]))
-			# 	point2 = (int(min_dist_points[i][1][0]), int(min_dist_points[i][1][1]))
-			# 	cv2.line(frame, point1, point2, (0, 255, 0), 2)
-			end_time = time()
-			fps = 1/np.round(end_time - start_time, 2)
-				
-			cv2.putText(frame, f'FPS: {int(fps)}', (20,70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,255,0), 2)
-			
-			cv2.imshow('YOLOv8 Detection', frame)
-			# cv2.waitKey(0)
-
-			if cv2.waitKey(5) & 0xFF == 27:
-				
-				break
-		
-		cap.release()
 		cv2.destroyAllWindows()
