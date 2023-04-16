@@ -3,9 +3,9 @@
 - install python dependecies:
 
 ```
-pip i ultralytics
-pip i pyserial
-pip i opencv-python
+pip install ultralytics
+pip install pyserial
+pip install opencv-python
 ```
 
 - upload Controller/Controller.ino to arduino
