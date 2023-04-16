@@ -1,5 +1,5 @@
 from drone import Drone
-from yolov8 import ObjectDetection
+from detect import ObjectDetection
 import cv2
 
 CV_ONLY = False
