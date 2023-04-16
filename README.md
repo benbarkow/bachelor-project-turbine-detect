@@ -8,6 +8,8 @@ pip i pyserial
 pip i opencv-python
 ```
 
+- upload Controller/Controller.ino to arduino
+
 # Config
 - Arduino serial port: 
   - drone/drone.py line-8
